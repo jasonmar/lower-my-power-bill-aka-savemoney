@@ -1,8 +1,26 @@
 import org.joda.time.DateTime
 
-val data = ( scala.xml.XML.loadFile("/app/anvil/savemoney/public/H_SAMPLE_99999_CONSUMPTION_20120914081520.XML") \\ "IntervalBlock" ).map(_ \\ "value").map(_.map(_.text.toInt))
+val custID = "70"
+val xmlBaseDir = "/app/anvil/savemoney/public/"
+val fileName = custID + ".XML"
+val xmlFile = xmlBaseDir + fileName
 
-val t = ( scala.xml.XML.loadFile("/app/anvil/savemoney/public/H_SAMPLE_99999_CONSUMPTION_20120914081520.XML") \\ "IntervalBlock" ).map(_ \\ "start").map(_.map(_.text.toInt))
+val intervalData = scala.xml.XML.loadFile(xmlFile) \\ "IntervalBlock"
+
+val data = intervalData.view.map(_ \\ "value").map(_.map(_.text.toInt)).toList
+
+val t = intervalData.view.map(_ \\ "start").map(_.map(_.text.toInt)).toList
+
+val dates = t.map (x => new DateTime(x.head.toLong * 1000))
+val month = dates.map (x => x.getMonthOfYear)
+val monthid = dates.map (x => x.getMonthOfYear + (x.getYear * 100) )
+val season = month.map (x => x match {
+    case x if 5 to 10 contains x => 0
+    case _ => 1
+  }
+)
+
+
 
 val usageByDay = data.map(_.sum)
 
@@ -26,34 +44,50 @@ val avgUsageSuperOffPeak = hoursSuperOffPeak.map(num => avgUsageByHour(num))
 
 
 
-val baselineSummerCoastal = 294
-val baselineSummerInland = 330
-val baselineSummerMountain = 519
-val baselineSummerDesert = 585
-val baselineWinterCoastal = 498
-val baselineWinterInland = 549
-val baselineWinterMountain = 855
-val baselineWinterDesert = 660
+val baselineCoastal = (294,498)
+val baselineInland = (330,549)
+val baselineMountain = (519,855)
+val baselineDesert = (585,660)
 
-val priceOffPeak = 19
-val priceOnPeak = 29
-val priceSuperOffPeak = 16
+
 
 /* prices in cents per kWh */
+
 val pricesByTierSummer = List(15,17,35,37)
 val pricesByTierWinter = List(15,17,33,35)
 val tierThresholdsPct = List(0,100,130,200)
 
 
-/* Seasons
-*  0 = summer 
-*  1 = winter
-*/
-def getSeason (t: Int) = {
-  val dt = new DateTime(t.toLong * 1000)
-  val season = dt.YearMonth match {
-    case x if 5 to 10 contains x => 0
-    case _ => 1
-  }
-  season
+
+
+val months = monthid.distinct
+
+def getIndexForMonthID(monthID:Int) = {
+    monthid.zipWithIndex.filter(_._1 == monthID).map(_._2)
+}
+
+
+
+/* experimental */
+
+months.map(monthid => calculateMonthlyBill(monthid))
+
+
+
+def calculateMonthlyBill (monthID:Int) = {
+
+}
+
+
+def calculateMonthlyBillEvTOU2 (monthID: Int) = {
+
+  val monthIDs = getIndexForMonthID(monthID)
+
+  val priceOffPeak = 19
+  val priceOnPeak = 29
+  val priceSuperOffPeak = 16
+
+  monthIDs.map(id => 
+    data
+  )
 }
