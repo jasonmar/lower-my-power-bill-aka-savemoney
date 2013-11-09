@@ -1,0 +1,59 @@
+import org.joda.time.DateTime
+
+val data = ( scala.xml.XML.loadFile("/app/anvil/savemoney/public/H_SAMPLE_99999_CONSUMPTION_20120914081520.XML") \\ "IntervalBlock" ).map(_ \\ "value").map(_.map(_.text.toInt))
+
+val t = ( scala.xml.XML.loadFile("/app/anvil/savemoney/public/H_SAMPLE_99999_CONSUMPTION_20120914081520.XML") \\ "IntervalBlock" ).map(_ \\ "start").map(_.map(_.text.toInt))
+
+val usageByDay = data.map(_.sum)
+
+val avgUsagePerDay = usageByDay.sum / usageByDay.length
+
+val hours = List(0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23)
+val hoursOffPeak = List(5,6,7,8,9,10,11,18,19,20,21,22,23)
+val hoursOnPeak = List(12,13,14,16,17)
+val hoursSuperOffPeak = List(0,1,2,3,4)
+
+
+val usageByHour = hours.map(num => data.map(_(num)))
+
+val avgUsageByHour = usageByHour.map( usage => usage.sum / usage.length )
+
+
+
+val avgUsageOffPeak = hoursOffPeak.map(num => avgUsageByHour(num))
+val avgUsageOnPeak = hoursOnPeak.map(num => avgUsageByHour(num))
+val avgUsageSuperOffPeak = hoursSuperOffPeak.map(num => avgUsageByHour(num))
+
+
+
+val baselineSummerCoastal = 294
+val baselineSummerInland = 330
+val baselineSummerMountain = 519
+val baselineSummerDesert = 585
+val baselineWinterCoastal = 498
+val baselineWinterInland = 549
+val baselineWinterMountain = 855
+val baselineWinterDesert = 660
+
+val priceOffPeak = 19
+val priceOnPeak = 29
+val priceSuperOffPeak = 16
+
+/* prices in cents per kWh */
+val pricesByTierSummer = List(15,17,35,37)
+val pricesByTierWinter = List(15,17,33,35)
+val tierThresholdsPct = List(0,100,130,200)
+
+
+/* Seasons
+*  0 = summer 
+*  1 = winter
+*/
+def getSeason (t: Int) = {
+  val dt = new DateTime(t.toLong * 1000)
+  val season = dt.YearMonth match {
+    case x if 5 to 10 contains x => 0
+    case _ => 1
+  }
+  season
+}
