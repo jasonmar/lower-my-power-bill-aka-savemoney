@@ -1,9 +1,12 @@
+package models
+
 import org.joda.time.DateTime
 import scala.xml.XML
+import java.math.BigDecimal
 
 case class Usage (custID:Int) {
 
-    val xmlBaseDir = "/app/anvil/savemoney/public/"
+    val xmlBaseDir = "/home/ec2-user/savemoney/public/"
 
     def parseXML (custID:Int) = {
         val fileName = custID.toString + ".XML"

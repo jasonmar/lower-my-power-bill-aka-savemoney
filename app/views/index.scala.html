@@ -1,7 +1,14 @@
-@(message: String)
+@main("Login") {
 
-@main("Welcome to Play") {
-
-    @play20.welcome(message)
-
+<div class="container">
+	<form action="/user/70" class="form-signin">
+		<h2 class="form-signin-heading">Please sign in</h2>
+		<input type="text" class="input-block-level" placeholder="Email address">
+		<input type="password" class="input-block-level" placeholder="Password">
+		<label class="checkbox">
+		  <input type="checkbox" value="remember-me"> Remember me
+		</label>
+		<button class="btn btn-large btn-primary" type="submit">Sign in</button>
+	</form>
+</div>
 }
