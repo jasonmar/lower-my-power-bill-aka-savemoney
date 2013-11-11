@@ -4,21 +4,21 @@
 
 <div class="container">
 
-<h1><img src="/assets/images/moneybags.jpg" style="width:80px" /> How to Lower Your Power Bill AKA Save Money</h1>
+<h1><img src="/assets/images/moneybags.jpg" style="width:50px" /> How to Lower Your Power Bill AKA Save Money</h1>
 
 
 <br />
 <br />
-<h2><img src="/assets/images/money.png" style="width:50px" />Suggested Action</h2>
+<h2><img src="/assets/images/money.png" style="width:30px" />Suggested Action</h2>
 
-<h3><img src="/assets/images/chart.png" style="width:30px" />Switch to Billing Tarrif "EVTOU2" (<a href="http://www.sdge.com/clean-energy/ev-rates">SDGE.com</a>)</h3>
-<h3><img src="/assets/images/sun.png" style="width:30px" />Lease Solar Panels (<a href="#">affiliate link</a>)</h3>
-<h3><img src="/assets/images/lightningbolt.png" style="width:30px" />Subscribe to Lower Your Power Bill Service (<a href="#">ATT Subscribe API link</a>)</h3>
+<h3><img src="/assets/images/chart.png" style="width:20px" />Switch to Billing Tarrif "EVTOU2" (<a href="http://www.sdge.com/clean-energy/ev-rates">SDGE.com</a>)</h3>
+<h3><img src="/assets/images/sun.png" style="width:20px" />Lease Solar Panels (<a href="#">affiliate link</a>)</h3>
+<h3><img src="/assets/images/lightningbolt.png" style="width:20px" />Subscribe to Lower Your Power Bill Service (<a href="#">ATT Subscribe API link</a>)</h3>
 
 <br />
 <br />
 
-<h2><img src="/assets/images/money.png" style="width:50px" /> Savings Estimate @usage.months.length months</h2>
+<h2><img src="/assets/images/money.png" style="width:30px" /> Savings Estimate @usage.months.length months</h2>
 
 
 <table class="table table-bordered" >
@@ -40,20 +40,20 @@
   </tbody>
 </table>
 
-<h2><img src="/assets/images/money.png" style="width:50px" />  DR2 Bill Estimate</h2>
+<h2><img src="/assets/images/money.png" style="width:30px" />  DR2 Bill Estimate</h2>
 
 <table class="table table-bordered" >
   <thead>
     <tr>
-      <th>Total Usage</th>
+      <th>Total Usage (kWh)</th>
       <th>Total Bill</th>
-      <th>Tier 1 Usage</th>
+      <th>Tier 1 Usage (kWh)</th>
       <th>Tier 1 Charges</th>
-      <th>Tier 2 Usage</th>
+      <th>Tier 2 Usage (kWh)</th>
       <th>Tier 2 Charges</th>
-      <th>Tier 3 Usage</th>
+      <th>Tier 3 Usage (kWh)</th>
       <th>Tier 3 Charges</th>
-      <th>Tier 4 Usage</th>
+      <th>Tier 4 Usage (kWh)</th>
       <th>Tier 4 Charges</th>
     </tr>
   </thead>
@@ -61,15 +61,15 @@
   
 	@for(monthlyBillDR2 <- usage.billsDR2){
     <tr>
-      <td>@monthlyBillDR2(0)</td>
+      <td>@monthlyBillDR2(0) kWh</td>
       <td>$ @monthlyBillDR2(1)</td>
-      <td>@monthlyBillDR2(2)</td>
+      <td>@monthlyBillDR2(2) kWh</td>
       <td>$ @monthlyBillDR2(3)</td>
-      <td>@monthlyBillDR2(4)</td>
+      <td>@monthlyBillDR2(4) kWh</td>
       <td>$ @monthlyBillDR2(5)</td>
-      <td>@monthlyBillDR2(6)</td>
+      <td>@monthlyBillDR2(6) kWh</td>
       <td>$ @monthlyBillDR2(7)</td>
-      <td>@monthlyBillDR2(8)</td>
+      <td>@monthlyBillDR2(8) kWh</td>
       <td>$ @monthlyBillDR2(9)</td>
     </tr>
 	}
@@ -78,7 +78,7 @@
 </table>
 
 
-<h2><img src="/assets/images/money.png" style="width:50px" />  EVTOU2 Bill Estimate</h2>
+<h2><img src="/assets/images/money.png" style="width:30px" />  EVTOU2 Bill Estimate</h2>
 <table class="table table-bordered">
   <thead>
     <tr>

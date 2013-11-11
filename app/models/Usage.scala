@@ -6,7 +6,8 @@ import java.math.BigDecimal
 
 case class Usage (custID:Int) {
 
-    val xmlBaseDir = "/home/ec2-user/savemoney/public/"
+    
+    val xmlBaseDir = sys.env("HOME") + "/savemoney/public/"
 
     def parseXML (custID:Int) = {
         val fileName = custID.toString + ".XML"
