@@ -2,7 +2,7 @@ package models
 
 import org.joda.time.DateTime
 import scala.xml.XML
-import java.math.BigDecimal
+import scala.math.BigDecimal
 
 case class Usage (custID:Int) {
 
@@ -50,7 +50,7 @@ case class Usage (custID:Int) {
 
     val hours = List(0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23)
     val hoursOffPeak = List(5,6,7,8,9,10,11,18,19,20,21,22,23)
-    val hoursOnPeak = List(12,13,14,16,17)
+    val hoursOnPeak = List(12,13,14,15,16,17)
     val hoursSuperOffPeak = List(0,1,2,3,4)
 
     val priceOffPeak = 19
@@ -103,7 +103,7 @@ case class Usage (custID:Int) {
 		monthUsage
 	}
 	
-	def getMonthlyBillDR2(monthUsage:Int) = {
+	def getMonthlyBillDR2(monthID:Int, monthUsage:Int) = {
 		val t1max = (baselineCoastal(1)).toInt
 		val t2max = (baselineCoastal(1)*1.3).toInt
 		val t3max = (baselineCoastal(1)*2).toInt
@@ -134,19 +134,23 @@ case class Usage (custID:Int) {
 		val t4Amt = t4Usage * pricesByTierSummer(4) / 100
 		val totalUsage = t1Usage + t2Usage + t3Usage + t4Usage
 		val totalAmt = t1Amt + t2Amt + t3Amt + t4Amt
-		List(totalUsage, totalAmt, t1Usage, t1Amt, t2Usage, t2Amt, t3Usage, t3Amt, t4Usage, t4Amt)
+		List(monthID, totalUsage, totalAmt, t1Usage, t1Amt, t2Usage, t2Amt, t3Usage, t3Amt, t4Usage, t4Amt)
 	}
 	
 	def getDR2Bills() = {
         months.map(monthID => 
-            getMonthlyBillDR2(getMonthUsage(monthID))
+            getMonthlyBillDR2(monthID,getMonthUsage(monthID))
         )
     }
 	
     val billsDR2 = getDR2Bills
-    val billTotalsDR2 = billsDR2.map(x => x(1))
-    val avgBillAmtDR2 = billTotalsDR2.sum / billTotalsDR2.length
-    val totalAmtDR2 = billTotalsDR2.sum
+    val billTotalAmtDR2 = billsDR2.map(x => x(2))
+    val billTotalUsageDR2 = billsDR2.map(x => x(1))
+    val avgBillAmtDR2 = billTotalAmtDR2.sum / billTotalAmtDR2.length
+    val totalAmtDR2 = billTotalAmtDR2.sum
+    val totalUsageDR2 = billTotalUsageDR2.sum
+    val avgkWhPriceDR2 = BigDecimal(totalAmtDR2) / BigDecimal(totalUsageDR2)
+
 
 
     def getBillEVTOU2(hourlyUsage: List[Int]) = {
@@ -158,23 +162,29 @@ case class Usage (custID:Int) {
         val amtOnPeak = usageOnPeak.sum * priceOnPeak / 100
         val amtSuperOffPeak = usageSuperOffPeak.sum * priceSuperOffPeak / 100
         val total = amtOffPeak + amtOnPeak + amtSuperOffPeak
-        List(total, amtOffPeak, amtOnPeak, amtSuperOffPeak)
+        val totalUsage = hourlyUsage.sum
+        List(total, amtOffPeak, amtOnPeak, amtSuperOffPeak, usageOffPeak.sum, usageOnPeak.sum, usageSuperOffPeak.sum, totalUsage)
     }
 
 
 
     def getDailyAmtsEVTOU2(monthID: Int) = {
         val monthData = getMonthData(monthID)
-        val dailyAmts = monthData.map(day => getBillEVTOU2(day))
+        val dailyAmts = monthData.map(oneDayHourlyUsage => getBillEVTOU2(oneDayHourlyUsage))
         dailyAmts
     }
 
     def getMonthlyTotalEVTOU2(monthID: Int) = {
-        val monthTotal = getDailyAmtsEVTOU2(monthID).map(day => day(0)).sum
-        val monthTotalOffPeak = getDailyAmtsEVTOU2(monthID).map(day => day(1)).sum
-        val monthTotalOnPeak = getDailyAmtsEVTOU2(monthID).map(day => day(2)).sum
-        val monthTotalSuperOffPeak = getDailyAmtsEVTOU2(monthID).map(day => day(3)).sum
-        List(monthTotal,monthTotalOffPeak,monthTotalOnPeak,monthTotalSuperOffPeak)
+        val dailyAmts = getDailyAmtsEVTOU2(monthID)
+        val monthTotal = dailyAmts.map(day => day(0)).sum
+        val monthTotalOffPeak = dailyAmts.map(day => day(1)).sum
+        val monthTotalOnPeak = dailyAmts.map(day => day(2)).sum
+        val monthTotalSuperOffPeak = dailyAmts.map(day => day(3)).sum
+        val monthTotalUsageOffPeak = dailyAmts.map(day => day(4)).sum
+        val monthTotalUsageOnPeak = dailyAmts.map(day => day(5)).sum
+        val monthTotalUsageSuperOffPeak = dailyAmts.map(day => day(6)).sum
+        val monthTotalUsage = dailyAmts.map(day => day(7)).sum
+        List(monthID,monthTotal,monthTotalOffPeak,monthTotalOnPeak,monthTotalSuperOffPeak,monthTotalUsageOffPeak,monthTotalUsageOnPeak,monthTotalUsageSuperOffPeak,monthTotalUsage)
     }
 
 
@@ -186,11 +196,14 @@ case class Usage (custID:Int) {
         )
     }
     val billsEVTOU2 = getEVTOU2Bills
-    val billTotalsEVTOU2 = billsEVTOU2.map(x => x(0))
-    val avgBillAmtEVTOU2 = billTotalsEVTOU2.sum / billTotalsEVTOU2.length
-    val totalAmtEVTOU2 = billTotalsEVTOU2.sum
-	
-	
-	val savingsTOU = totalAmtDR2 - totalAmtEVTOU2
+    val billTotalAmtEVTOU2 = billsEVTOU2.map(x => x(1))
+    val billTotalUsageEVTOU2 = billsEVTOU2.map(x => x(8))
+    val avgBillAmtEVTOU2 = billTotalAmtEVTOU2.sum / billTotalAmtEVTOU2.length
+    val totalAmtEVTOU2 = billTotalAmtEVTOU2.sum
 
+    val totalUsageEVTOU2 = billTotalUsageEVTOU2.sum
+    val avgkWhPriceEVTOU2 = BigDecimal(totalAmtEVTOU2) / BigDecimal(totalUsageEVTOU2)
+
+    val savingsTOU = totalAmtDR2 - totalAmtEVTOU2
+    val savingsPerkWhEVTOU2 = avgkWhPriceDR2 - avgkWhPriceEVTOU2
 }

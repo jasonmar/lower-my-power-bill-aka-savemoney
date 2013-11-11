@@ -1,30 +1,60 @@
 @(usage: Usage)
+@import scala.math.BigDecimal
 
 @main("Power Bill Saving Comparison") {
 
 <div class="container">
 
-<h1><img src="/assets/images/moneybags.jpg" style="width:50px" /> How to Lower Your Power Bill AKA Save Money</h1>
-
-
-<br />
-<br />
-<h2><img src="/assets/images/money.png" style="width:30px" />Suggested Action</h2>
-
-<h3><img src="/assets/images/chart.png" style="width:20px" />Switch to Billing Tarrif "EVTOU2" (<a href="http://www.sdge.com/clean-energy/ev-rates">SDGE.com</a>)</h3>
-<h3><img src="/assets/images/sun.png" style="width:20px" />Lease Solar Panels (<a href="#">affiliate link</a>)</h3>
-<h3><img src="/assets/images/lightningbolt.png" style="width:20px" />Subscribe to Lower Your Power Bill Service (<a href="#">ATT Subscribe API link</a>)</h3>
+<h1><img src="/assets/images/moneybags.jpg" style="width:50px" />&nbsp;&nbsp;Lower Your Power Bill AKA Save Money</h1>
 
 <br />
 <br />
+<h2><img src="/assets/images/money.png" style="width:30px" />&nbsp;&nbsp;Suggested Action</h2>
 
-<h2><img src="/assets/images/money.png" style="width:30px" /> Savings Estimate @usage.months.length months</h2>
+<ul>
+<li><img src="/assets/images/chart.png" style="width:20px" />&nbsp;&nbsp;Switch to Billing Tarrif "EVTOU2" (<a href="http://www.sdge.com/clean-energy/ev-rates">http://www.sdge.com/clean-energy/ev-rates</a>)</li>
+<li><img src="/assets/images/sun.png" style="width:20px" />&nbsp;&nbsp;Lease Solar Panels (<a href="#">affiliate link</a>)</li>
+<li><img src="/assets/images/lightningbolt.png" style="width:20px" />&nbsp;&nbsp;Subscribe to Lower Your Power Bill Service (<a href="#">ATT Subscribe API link</a>)</li>
+</ul>
+
+<br />
+<br />
+
+
+<h2><img src="/assets/images/money.png" style="width:30px" />&nbsp;&nbsp;Usage Summary @usage.months.length months</h2>
 
 
 <table class="table table-bordered" >
   <thead>
     <tr>
-      <th>Total Charges if using DR2</th>
+      <th>Total Usage DR2 (kWh)</th>
+      <th>Avg Cost per kWh DR2</th>
+      <th>Total Usage EVTOU2 (kWh)</th>
+      <th>Avg Cost per kWh EVTOU2</th>
+      <th>EVTOU2 Savings per kWh</th>
+    </tr>
+  </thead>
+  <tbody>
+  
+    <tr>
+      <td class="highlight">@usage.totalUsageDR2.toString kWh</td>
+      <td class="highlight">$ @usage.avgkWhPriceDR2.setScale(2,  BigDecimal.RoundingMode.FLOOR).toString</td>
+      <td class="highlight">@usage.totalUsageEVTOU2.toString kWh</td>
+      <td class="highlight">$ @usage.avgkWhPriceEVTOU2.setScale(2,  BigDecimal.RoundingMode.FLOOR).toString</td>
+      <td class="highlight">$ @usage.savingsPerkWhEVTOU2.setScale(2,  BigDecimal.RoundingMode.FLOOR).toString</td>
+    </tr>
+	
+  </tbody>
+</table>
+
+
+<h2><img src="/assets/images/money.png" style="width:30px" />&nbsp;&nbsp;Savings Estimate @usage.months.length months</h2>
+
+
+<table class="table table-bordered" >
+  <thead>
+    <tr>
+      <th>Total Charges if using DR2 (assumes coastal region without gas)</th>
       <th>Total Charges if using EVTOU2</th>
       <th>EVTOU2 Savings</th>
     </tr>
@@ -40,11 +70,12 @@
   </tbody>
 </table>
 
-<h2><img src="/assets/images/money.png" style="width:30px" />  DR2 Bill Estimate</h2>
+<h2><img src="/assets/images/money.png" style="width:30px" />&nbsp;&nbsp;DR2 Bill Estimate</h2>
 
 <table class="table table-bordered" >
   <thead>
     <tr>
+      <th>Month</th>
       <th>Total Usage (kWh)</th>
       <th>Total Bill</th>
       <th>Tier 1 Usage (kWh)</th>
@@ -61,16 +92,17 @@
   
 	@for(monthlyBillDR2 <- usage.billsDR2){
     <tr>
-      <td>@monthlyBillDR2(0) kWh</td>
-      <td>$ @monthlyBillDR2(1)</td>
-      <td>@monthlyBillDR2(2) kWh</td>
-      <td>$ @monthlyBillDR2(3)</td>
-      <td>@monthlyBillDR2(4) kWh</td>
-      <td>$ @monthlyBillDR2(5)</td>
-      <td>@monthlyBillDR2(6) kWh</td>
-      <td>$ @monthlyBillDR2(7)</td>
-      <td>@monthlyBillDR2(8) kWh</td>
-      <td>$ @monthlyBillDR2(9)</td>
+      <td>@monthlyBillDR2(0)</td>
+      <td>@monthlyBillDR2(1)</td>
+      <td>$ @monthlyBillDR2(2)</td>
+      <td>@monthlyBillDR2(3) kWh</td>
+      <td>$ @monthlyBillDR2(4)</td>
+      <td>@monthlyBillDR2(5) kWh</td>
+      <td>$ @monthlyBillDR2(6)</td>
+      <td>@monthlyBillDR2(7) kWh</td>
+      <td>$ @monthlyBillDR2(8)</td>
+      <td>@monthlyBillDR2(9) kWh</td>
+      <td>$ @monthlyBillDR2(10)</td>
     </tr>
 	}
 	
@@ -78,10 +110,11 @@
 </table>
 
 
-<h2><img src="/assets/images/money.png" style="width:30px" />  EVTOU2 Bill Estimate</h2>
+<h2><img src="/assets/images/money.png" style="width:30px" />&nbsp;&nbsp;EVTOU2 Bill Estimate</h2>
 <table class="table table-bordered">
   <thead>
     <tr>
+      <th>Month</th>
       <th>Total Bill</th>
       <th>Off Peak Charges</th>
       <th>On Peak Charges</th>
@@ -92,10 +125,11 @@
   
 	@for(monthlyBill <- usage.billsEVTOU2){
     <tr>
-      <td>$ @monthlyBill(0)</td>
+      <td>@monthlyBill(0)</td>
       <td>$ @monthlyBill(1)</td>
       <td>$ @monthlyBill(2)</td>
       <td>$ @monthlyBill(3)</td>
+      <td>$ @monthlyBill(4)</td>
     </tr>
 	}
 	
