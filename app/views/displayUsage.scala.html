@@ -70,6 +70,36 @@
   </tbody>
 </table>
 
+
+
+<h2><img src="/assets/images/money.png" style="width:30px" />&nbsp;&nbsp;Estimated Savings from @usage.solarGuidance(0) Watt Leased PV System over @usage.months.length months</h2>
+
+
+<table class="table table-bordered" >
+  <thead>
+    <tr>
+      <th>Suggested System Size (W)</th>
+      <th>Cost per kWh savings vs DR2</th>
+      <th>Cost per kWh savings vs EVTOU2</th>
+      <th>Estimated savings vs DR2</th>
+      <th>Estimated savings vs EVTOU2</th>
+    </tr>
+  </thead>
+  <tbody>
+  
+    <tr>
+      <td class="highlight">@usage.solarGuidance(0) W</td>
+      <td class="highlight">$ @usage.solarkWhSavingsEVTOU2.setScale(2,  BigDecimal.RoundingMode.FLOOR).toString</td>
+      <td class="highlight">$ @usage.solarkWhSavingsDR2.setScale(2,  BigDecimal.RoundingMode.FLOOR).toString</td>
+      <td class="highlight">$ @usage.solarAmtSavingsEVTOU2.setScale(2,  BigDecimal.RoundingMode.FLOOR).toString</td>
+      <td class="highlight">$ @usage.solarAmtSavingsDR2.setScale(2,  BigDecimal.RoundingMode.FLOOR).toString</td>
+    </tr>
+	
+  </tbody>
+</table>
+
+
+
 <h2><img src="/assets/images/money.png" style="width:30px" />&nbsp;&nbsp;DR2 Bill Estimate</h2>
 
 <table class="table table-bordered" >

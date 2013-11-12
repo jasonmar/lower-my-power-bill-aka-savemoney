@@ -52,6 +52,12 @@ case class Usage (custID:Int) {
     val hoursOffPeak = List(5,6,7,8,9,10,11,18,19,20,21,22,23)
     val hoursOnPeak = List(12,13,14,15,16,17)
     val hoursSuperOffPeak = List(0,1,2,3,4)
+    val hoursMaxInsolation = List(11,12,13,14)
+    val hoursHalfInsolation = List(9,10,15,16)
+
+
+
+    /* prices in cents per kWh */
 
     val priceOffPeak = 19
     val priceOnPeak = 29
@@ -59,7 +65,8 @@ case class Usage (custID:Int) {
 
     val pricesByTierSummer = List(0,15,17,35,37)
     val pricesByTierWinter = List(0,15,17,33,35)
-    val tierThresholdsPct = List(0,100,130,200)
+
+    val priceLeasedSolar = 15
 
 
     /* Baselines by Region */
@@ -69,7 +76,8 @@ case class Usage (custID:Int) {
     val baselineMountain = List(519,855)
     val baselineDesert = List(585,660)
 
-    /* prices in cents per kWh */
+    val tierThresholdsPct = List(0,100,130,200)
+
 
 
 
@@ -90,13 +98,17 @@ case class Usage (custID:Int) {
 
 
 
+    /* Utility Function used by all Tariffs */
 
     def getMonthData(monthID:Int) = {
       val monthIDs = getIndexForMonthID(monthID)
       val monthData = monthIDs.map(id => data(id).toList)
       monthData
     }
-	
+
+
+    /* DR2 (default residential tariff) */
+
 	def getMonthUsage(monthID:Int) = {
 		val monthData = getMonthData(monthID)
 		val monthUsage = monthData.map(_.sum).sum
@@ -152,6 +164,7 @@ case class Usage (custID:Int) {
     val avgkWhPriceDR2 = BigDecimal(totalAmtDR2) / BigDecimal(totalUsageDR2)
 
 
+    /* EVTOU2 Tariff */
 
     def getBillEVTOU2(hourlyUsage: List[Int]) = {
         val usageOffPeak = hoursOffPeak.map(hour => hourlyUsage(hour))
@@ -206,4 +219,76 @@ case class Usage (custID:Int) {
 
     val savingsTOU = totalAmtDR2 - totalAmtEVTOU2
     val savingsPerkWhEVTOU2 = avgkWhPriceDR2 - avgkWhPriceEVTOU2
+
+
+    /* Solar Savings Estimation */
+
+    def getSolarByDay(monthID:Int, hourlyUsage: List[Int]) = {
+        val usageDuringMaxInsolation = hoursMaxInsolation.map(hour => hourlyUsage(hour))
+        val usageDuringHalfInsolation  = hoursHalfInsolation.map(hour => hourlyUsage(hour))
+
+        val amtDuringMaxInsolation = usageDuringMaxInsolation.sum * priceLeasedSolar / 100
+        val amtDuringHalfInsolation = usageDuringHalfInsolation.sum * priceLeasedSolar / 100
+
+        val totalAmt = amtDuringMaxInsolation + amtDuringHalfInsolation
+        val totalUsage = usageDuringMaxInsolation.sum + usageDuringMaxInsolation.sum
+
+        List(monthID, totalUsage, totalAmt, usageDuringMaxInsolation.sum, amtDuringMaxInsolation, usageDuringHalfInsolation.sum, amtDuringHalfInsolation)
+    }
+
+
+    def getSolarByMonth(monthID: Int) = {
+        val monthData = getMonthData(monthID)
+        val dailyAmts = monthData.map(oneDayHourlyUsage => getSolarByDay(monthID,oneDayHourlyUsage))
+        dailyAmts
+    }
+
+    def getSolarGuidance () = {
+        val solarData = months.map(monthID =>
+            getSolarByMonth(monthID)
+        )
+        val usageDuringMaxInsolation = solarData.map(_.map(_(3)))
+        val usageDuringHalfInsolation = solarData.map(_.map(_(5)))
+
+        val avgUsageDuringMaxInsolation = usageDuringMaxInsolation.map(x => x.sum / x.length )
+        val minUsageDuringMaxInsolation = usageDuringMaxInsolation.map(x => x.min)
+        val maxUsageDuringMaxInsolation = usageDuringMaxInsolation.map(x => x.max)
+
+        val avgUsageDuringHalfInsolation = usageDuringHalfInsolation.map(x => x.sum / x.length )
+        val minUsageDuringHalfInsolation = usageDuringHalfInsolation.map(x => x.min)
+        val maxUsageDuringHalfInsolation = usageDuringHalfInsolation.map(x => x.max)
+
+        val totalUsageDuringMaxInsolation = usageDuringMaxInsolation.map(_.sum).sum
+        val totalUsageDuringHalfInsolation = usageDuringHalfInsolation.map(_.sum).sum
+
+        val maxAvg = avgUsageDuringMaxInsolation.sum / avgUsageDuringMaxInsolation.length
+        val maxAvgMin = minUsageDuringMaxInsolation.sum / minUsageDuringMaxInsolation.length
+        val maxAvgMax = maxUsageDuringMaxInsolation.sum / maxUsageDuringMaxInsolation.length
+
+        val halfAvg = avgUsageDuringHalfInsolation.sum / avgUsageDuringHalfInsolation.length
+        val halfAvgMin = minUsageDuringHalfInsolation.sum / minUsageDuringHalfInsolation.length
+        val halfAvgMax = maxUsageDuringHalfInsolation.sum / maxUsageDuringHalfInsolation.length
+
+        /* Calculate suggested PV system size, with heaviest weighting on avgUsageDuringMaxInsolation */
+
+        val suggestedPVSystemSize = maxAvgMin * 1000
+
+        List(suggestedPVSystemSize: Int, totalUsageDuringMaxInsolation, totalUsageDuringHalfInsolation, maxAvg, maxAvgMin, maxAvgMax, halfAvg, halfAvgMin, halfAvgMax)
+
+    }
+
+    val solarGuidance = getSolarGuidance()
+    val solarkWhSavingsEVTOU2 = avgkWhPriceEVTOU2 - (BigDecimal(priceLeasedSolar) / 100)
+    val solarkWhSavingsDR2 = avgkWhPriceDR2 - (BigDecimal(priceLeasedSolar) / 100)
+
+    val solarAmtSavingsEVTOU2 = ( 
+        (BigDecimal(0.8) * solarGuidance(1) * solarkWhSavingsEVTOU2) 
+        + (BigDecimal(0.4) * solarGuidance(2) * solarkWhSavingsEVTOU2) 
+        ).setScale(2,  BigDecimal.RoundingMode.FLOOR)
+
+    val solarAmtSavingsDR2 = ( 
+        (BigDecimal(0.8) * solarGuidance(1) * solarkWhSavingsDR2) 
+        + (BigDecimal(0.4) * solarGuidance(2) * solarkWhSavingsDR2) 
+        ).setScale(2,  BigDecimal.RoundingMode.FLOOR)
+
 }
