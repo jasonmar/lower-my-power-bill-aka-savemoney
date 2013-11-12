@@ -250,13 +250,13 @@ case class Usage (custID:Int) {
         val usageDuringMaxInsolation = solarData.map(_.map(_(3)))
         val usageDuringHalfInsolation = solarData.map(_.map(_(5)))
 
-        val avgUsageDuringMaxInsolation = usageDuringMaxInsolation.map(x => x.sum / x.length )
-        val minUsageDuringMaxInsolation = usageDuringMaxInsolation.map(x => x.min)
-        val maxUsageDuringMaxInsolation = usageDuringMaxInsolation.map(x => x.max)
+        val avgUsageDuringMaxInsolation = usageDuringMaxInsolation.map(x => (x.sum / hoursMaxInsolation.length) / x.length )
+        val minUsageDuringMaxInsolation = usageDuringMaxInsolation.map(x => x.min / hoursMaxInsolation.length)
+        val maxUsageDuringMaxInsolation = usageDuringMaxInsolation.map(x => x.max / hoursMaxInsolation.length)
 
-        val avgUsageDuringHalfInsolation = usageDuringHalfInsolation.map(x => x.sum / x.length )
-        val minUsageDuringHalfInsolation = usageDuringHalfInsolation.map(x => x.min)
-        val maxUsageDuringHalfInsolation = usageDuringHalfInsolation.map(x => x.max)
+        val avgUsageDuringHalfInsolation = usageDuringHalfInsolation.map(x => (x.sum / hoursHalfInsolation.length) / x.length )
+        val minUsageDuringHalfInsolation = usageDuringHalfInsolation.map(x => x.min / hoursHalfInsolation.length)
+        val maxUsageDuringHalfInsolation = usageDuringHalfInsolation.map(x => x.max / hoursHalfInsolation.length)
 
         val totalUsageDuringMaxInsolation = usageDuringMaxInsolation.map(_.sum).sum
         val totalUsageDuringHalfInsolation = usageDuringHalfInsolation.map(_.sum).sum
@@ -278,17 +278,20 @@ case class Usage (custID:Int) {
     }
 
     val solarGuidance = getSolarGuidance()
-    val solarkWhSavingsEVTOU2 = avgkWhPriceEVTOU2 - (BigDecimal(priceLeasedSolar) / 100)
+    val solarkWhSavingsEVTOU2 = (BigDecimal(priceOnPeak) - BigDecimal(priceLeasedSolar)) / 100
     val solarkWhSavingsDR2 = avgkWhPriceDR2 - (BigDecimal(priceLeasedSolar) / 100)
 
     val solarAmtSavingsEVTOU2 = ( 
-        (BigDecimal(0.8) * solarGuidance(1) * solarkWhSavingsEVTOU2) 
-        + (BigDecimal(0.4) * solarGuidance(2) * solarkWhSavingsEVTOU2) 
+        ((BigDecimal(0.7) * solarGuidance(1)) 
+        + (BigDecimal(0.35) * solarGuidance(2))) * solarkWhSavingsEVTOU2
+        ).setScale(2, BigDecimal.RoundingMode.FLOOR)
+
+    val solarAmtSavingsDR2 = (
+        ((BigDecimal(0.7) * solarGuidance(1))
+        + (BigDecimal(0.35) * solarGuidance(2))) * solarkWhSavingsDR2
         ).setScale(2,  BigDecimal.RoundingMode.FLOOR)
 
-    val solarAmtSavingsDR2 = ( 
-        (BigDecimal(0.8) * solarGuidance(1) * solarkWhSavingsDR2) 
-        + (BigDecimal(0.4) * solarGuidance(2) * solarkWhSavingsDR2) 
-        ).setScale(2,  BigDecimal.RoundingMode.FLOOR)
+    val solarPctSavingsDR2 : BigDecimal = solarAmtSavingsDR2 / BigDecimal(totalAmtDR2) * 100
+    val solarPctSavingsEVTOU2 : BigDecimal = solarAmtSavingsEVTOU2 / BigDecimal(totalAmtEVTOU2) * 100
 
 }

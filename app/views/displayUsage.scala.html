@@ -12,7 +12,7 @@
 <h2><img src="/assets/images/money.png" style="width:30px" />&nbsp;&nbsp;Suggested Action</h2>
 
 <ul>
-<li><img src="/assets/images/chart.png" style="width:20px" />&nbsp;&nbsp;Switch to Billing Tarrif "EVTOU2" (<a href="http://www.sdge.com/clean-energy/ev-rates">http://www.sdge.com/clean-energy/ev-rates</a>)</li>
+<li><img src="/assets/images/chart.png" style="width:20px" />&nbsp;&nbsp;Switch to Billing Tarriff "EVTOU2" (<a href="http://www.sdge.com/clean-energy/ev-rates">http://www.sdge.com/clean-energy/ev-rates</a>)</li>
 <li><img src="/assets/images/sun.png" style="width:20px" />&nbsp;&nbsp;Lease Solar Panels (<a href="#">affiliate link</a>)</li>
 <li><img src="/assets/images/lightningbolt.png" style="width:20px" />&nbsp;&nbsp;Subscribe to Lower Your Power Bill Service (<a href="#">ATT Subscribe API link</a>)</li>
 </ul>
@@ -80,19 +80,23 @@
     <tr>
       <th>Suggested System Size (W)</th>
       <th>Cost per kWh savings vs DR2</th>
-      <th>Cost per kWh savings vs EVTOU2</th>
-      <th>Estimated savings vs DR2</th>
-      <th>Estimated savings vs EVTOU2</th>
+      <th>Cost per kWh savings vs EVTOU2 (On Peak Hours)</th>
+      <th>Estimated savings vs DR2 without Solar</th>
+      <th>Estimated savings vs DR2 without Solar (%)</th>
+      <th>Estimated savings vs EVTOU2 without Solar</th>
+      <th>Estimated savings vs EVTOU2 without Solar (%)</th>
     </tr>
   </thead>
   <tbody>
   
     <tr>
       <td class="highlight">@usage.solarGuidance(0) W</td>
-      <td class="highlight">$ @usage.solarkWhSavingsEVTOU2.setScale(2,  BigDecimal.RoundingMode.FLOOR).toString</td>
       <td class="highlight">$ @usage.solarkWhSavingsDR2.setScale(2,  BigDecimal.RoundingMode.FLOOR).toString</td>
-      <td class="highlight">$ @usage.solarAmtSavingsEVTOU2.setScale(2,  BigDecimal.RoundingMode.FLOOR).toString</td>
+      <td class="highlight">$ @usage.solarkWhSavingsEVTOU2.setScale(2,  BigDecimal.RoundingMode.FLOOR).toString</td>
       <td class="highlight">$ @usage.solarAmtSavingsDR2.setScale(2,  BigDecimal.RoundingMode.FLOOR).toString</td>
+      <td class="highlight">@usage.solarPctSavingsDR2.setScale(2,  BigDecimal.RoundingMode.FLOOR).toString %</td>
+      <td class="highlight">$ @usage.solarAmtSavingsEVTOU2.setScale(2,  BigDecimal.RoundingMode.FLOOR).toString</td>
+      <td class="highlight">@usage.solarPctSavingsEVTOU2.setScale(2,  BigDecimal.RoundingMode.FLOOR).toString %</td>
     </tr>
 	
   </tbody>
